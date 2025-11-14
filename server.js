@@ -13,8 +13,9 @@ const app = express();
 
 // Read env vars with safe defaults (do NOT log secrets)
 const PORT = process.env.PORT ?? 8787;
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "z-ai/glm-4.5-air:free";
+const OPENROUTER_API_KEY = (process.env.OPENROUTER_API_KEY || "").trim();
+const OPENROUTER_MODEL   = (process.env.OPENROUTER_MODEL || "z-ai/glm-4.5-air:free").trim();
+
 
 // In-memory conversation history (for demo; use a DB in production)
 const conversations = new Map();
