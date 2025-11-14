@@ -10,7 +10,7 @@ const MIN_TYPING_DURATION = 350;
 const welcomeMessage = () => ({
   id: "welcome",
   sender: "bot",
-  text: "Hello! I'm your AI assistant. How can I help you today?",
+  text: "👾 WELCOME TO PIXEL CHAT! 👾\n\nTYPE YOUR MESSAGE AND PRESS ENTER TO START CHATTING WITH THE AI!",
   timestamp: new Date().toISOString(),
 });
 
@@ -41,7 +41,7 @@ export function ChatApp({ apiUrl = "/api/chat" }) {
   const [messages, setMessages] = useState(() => loadHistory(initialSession));
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [status, setStatus] = useState("Ready");
+  const [status, setStatus] = useState("READY");
   const [liveAnnouncement, setLiveAnnouncement] = useState("");
   const inputRef = useRef(null);
   const previousSessionId = useRef(initialSession);
@@ -70,7 +70,7 @@ export function ChatApp({ apiUrl = "/api/chat" }) {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsTyping(true);
-    setStatus("Connecting...");
+    setStatus("CONNECTING...");
     const startTime = performance.now();
 
     try {
@@ -84,17 +84,17 @@ export function ChatApp({ apiUrl = "/api/chat" }) {
       }
       const botMessage = createMessage(result.reply, "bot");
       setMessages((prev) => [...prev, botMessage]);
-      setStatus(result.mode === "live" ? "Online" : "Mock mode");
+      setStatus(result.mode === "live" ? "ONLINE" : "MOCK MODE");
       setLiveAnnouncement(result.reply);
     } catch (error) {
       console.error(error);
       const fallback = createMessage(
-        "Sorry, I'm having trouble connecting right now. Please try again.",
+        "ERROR: CONNECTION FAILED. PLEASE TRY AGAIN.",
         "bot"
       );
       setMessages((prev) => [...prev, fallback]);
-      setStatus("Error");
-      setLiveAnnouncement("Connection error occurred.");
+      setStatus("ERROR");
+      setLiveAnnouncement("We hit an error replying.");
     } finally {
       const elapsed = performance.now() - startTime;
       if (elapsed < MIN_TYPING_DURATION) {
@@ -113,63 +113,80 @@ export function ChatApp({ apiUrl = "/api/chat" }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900 px-4 py-6">
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
-        <header className="flex flex-wrap items-start justify-between gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
-          <div>
-            <p className="text-xs uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-400">
-              AI Chat Bot
-            </p>
-            <h1 className="mt-2 text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-              AI Conversation Terminal
-            </h1>
-            <p className="max-w-2xl mt-2 text-sm text-gray-600 dark:text-gray-400">
-              AI chat interface with real LLM integration via OpenRouter. Messages persist locally.
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-2 text-right">
-            <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Status
-            </p>
-            <p
-              className="px-4 py-2 text-sm font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
-              aria-live="polite"
-            >
-              {status}
-            </p>
-            <button
-              type="button"
-              onClick={handleClear}
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 underline-offset-4 hover:underline transition-colors"
-            >
-              Clear history
-            </button>
+    <div className="flex min-h-screen flex-col bg-pixel-bg px-4 py-6 text-pixel-text font-pixel text-xs">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 relative z-10">
+        <header className="pixel-border bg-pixel-panel p-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-[0.7rem] uppercase tracking-[0.2em] text-pixel-accent pixel-glow">
+                AI CHAT BOT
+              </p>
+              <h1 className="mt-2 text-xl md:text-2xl text-pixel-accent pixel-glow">
+                AI CONVERSATION TERMINAL
+              </h1>
+              <p className="max-w-2xl text-[0.65rem] text-pixel-text-muted leading-relaxed mt-2">
+                PIXEL-STYLED CHAT INTERFACE WITH REAL LLM INTEGRATION. MESSAGES PERSIST LOCALLY.
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2 text-right">
+              <p className="text-[0.6rem] uppercase tracking-widest text-pixel-text-muted">
+                STATUS
+              </p>
+              <p
+                className="pixel-border bg-pixel-panel px-4 py-2 text-[0.7rem] text-pixel-success pixel-glow"
+                aria-live="polite"
+              >
+                {status}
+              </p>
+              <button
+                type="button"
+                onClick={handleClear}
+                className="pixel-button bg-transparent border-pixel-border text-pixel-text text-[0.6rem] px-3 py-1"
+              >
+                CLEAR
+              </button>
+            </div>
           </div>
         </header>
 
         <section className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-          <div className="flex flex-col gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
-            <ChatWindow messages={messages} isTyping={isTyping} />
-            <Composer
-              ref={inputRef}
-              value={inputValue}
-              onChange={setInputValue}
-              onSend={handleSend}
-              disabled={isTyping}
+          <div className="flex flex-col gap-4 pixel-border bg-pixel-panel p-4 relative">
+            <div className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px)'
+              }}
             />
+            <div className="relative z-10">
+              <ChatWindow messages={messages} isTyping={isTyping} />
+              <Composer
+                ref={inputRef}
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSend}
+                disabled={isTyping}
+              />
+            </div>
           </div>
-          <aside className="space-y-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 text-sm text-gray-600 dark:text-gray-400">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">Tips</h2>
-            <ul className="list-disc space-y-2 pl-5">
-              <li>Press Enter to send, Shift+Enter for a new line</li>
-              <li>Session data is stored locally in your browser</li>
-              <li>Responses come from the API or a mock fallback</li>
-            </ul>
-            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p className="text-xs uppercase tracking-wider font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                API Endpoint
-              </p>
-              <p className="text-xs font-mono text-gray-900 dark:text-gray-100">{apiUrl}</p>
+          <aside className="pixel-border bg-pixel-panel p-5 text-[0.6rem] text-pixel-text-muted space-y-4 relative">
+            <div className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                background: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px)'
+              }}
+            />
+            <div className="relative z-10">
+              <h2 className="text-[0.9rem] text-pixel-accent pixel-glow mb-4">COMMANDS</h2>
+              <ul className="list-disc space-y-2 pl-5 leading-relaxed">
+                <li>ENTER = SEND MESSAGE</li>
+                <li>SHIFT+ENTER = NEW LINE</li>
+                <li>DATA STORED LOCALLY</li>
+                <li>REAL LLM RESPONSES</li>
+              </ul>
+              <div className="pixel-border bg-pixel-panel p-4 mt-4 border-pixel-accent">
+                <p className="text-[0.6rem] uppercase tracking-[0.15em] text-pixel-accent mb-2">
+                  API ENDPOINT
+                </p>
+                <p className="text-[0.65rem] font-mono text-pixel-text">{apiUrl}</p>
+              </div>
             </div>
           </aside>
         </section>

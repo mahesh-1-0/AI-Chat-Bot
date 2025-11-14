@@ -19,13 +19,19 @@ const Composer = forwardRef(function Composer(
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+      className="space-y-3 pixel-border bg-pixel-panel p-4 mt-4 relative"
+      style={{
+        boxShadow: '8px 8px 0 #000000, inset -2px -2px 0 rgba(255,255,255,0.1)'
+      }}
     >
       <label
         htmlFor="chat-input"
-        className="block text-sm font-semibold text-gray-900 dark:text-white"
+        className="block text-[0.7rem] uppercase tracking-wider text-pixel-accent font-pixel"
+        style={{
+          textShadow: '2px 2px 0 #000000'
+        }}
       >
-        Message
+        MESSAGE
       </label>
       <textarea
         id="chat-input"
@@ -33,21 +39,30 @@ const Composer = forwardRef(function Composer(
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
+        placeholder="TYPE YOUR MESSAGE..."
         aria-required="true"
         rows={3}
-        className="w-full resize-none px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        className="w-full resize-none font-pixel text-[0.7rem] border-3 border-pixel-border bg-pixel-bg text-pixel-text p-3 focus:border-pixel-accent focus:outline-none"
+        style={{
+          boxShadow: 'inset 4px 4px 0 rgba(0,0,0,0.3), 4px 4px 0 #000000'
+        }}
       />
-      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <p className="flex-1">
-          Press Enter to send. Use Shift+Enter for a new line.
+      <div className="flex flex-wrap items-center gap-3 text-[0.6rem] text-pixel-text-muted">
+        <p className="flex-1 leading-relaxed">
+          PRESS ENTER TO SEND. SHIFT+ENTER FOR NEW LINE.
         </p>
         <button
           type="submit"
           disabled={disabled}
-          className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg transition-colors"
+          className="pixel-button bg-pixel-accent border-pixel-accent-strong text-black px-4 py-2 text-[0.65rem] disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            boxShadow: disabled 
+              ? 'none' 
+              : '4px 4px 0 #000000, inset -2px -2px 0 rgba(255,255,255,0.2)',
+            textShadow: '1px 1px 0 rgba(255,255,255,0.3)'
+          }}
         >
-          Send
+          SEND
         </button>
       </div>
     </form>

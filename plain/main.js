@@ -18,14 +18,14 @@ if (messages.length === 0) {
   messages.push({
     id: crypto.randomUUID(),
     sender: "bot",
-    text: "Hello! I'm your AI assistant. How can I help you today?",
+    text: "👾 WELCOME TO PIXEL CHAT! 👾\n\nTYPE YOUR MESSAGE AND PRESS ENTER TO START CHATTING WITH THE AI!",
     timestamp: new Date().toISOString(),
   });
   saveMessages();
 }
 
 renderMessages();
-connectionStatus.textContent = "Ready";
+connectionStatus.textContent = "READY";
 
 sendBtn.addEventListener("click", () => {
   sendCurrentMessage();
@@ -133,7 +133,7 @@ function formatMeta(message) {
     hour: "2-digit",
     minute: "2-digit",
   });
-  return `${message.sender === "user" ? "You" : "Bot"} • ${time}`;
+  return `${message.sender === "user" ? "YOU" : "BOT"} • ${time}`;
 }
 
 function createTypingIndicator() {
@@ -175,7 +175,7 @@ function mockReply(text) {
 }
 
 async function fetchBotReply(text) {
-  connectionStatus.textContent = "Connecting...";
+  connectionStatus.textContent = "CONNECTING...";
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
   try {
@@ -194,11 +194,11 @@ async function fetchBotReply(text) {
       sessionId = data.sessionId;
       localStorage.setItem(SESSION_KEY, sessionId);
     }
-    connectionStatus.textContent = "Online";
+    connectionStatus.textContent = "ONLINE";
     return data.reply ?? "I received your message!";
   } catch (error) {
     clearTimeout(timeout);
-    connectionStatus.textContent = "Mock mode";
+    connectionStatus.textContent = "MOCK MODE";
     return mockReply(text);
   }
 }

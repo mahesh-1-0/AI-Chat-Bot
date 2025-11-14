@@ -8,24 +8,46 @@ export default function Message({ message, isTyping = false }) {
     <li className={clsx("flex", isUser ? "justify-end" : "justify-start")}>
       <div
         className={clsx(
-          "max-w-[85%] px-4 py-3.5 rounded-xl text-sm leading-relaxed",
+          "max-w-[90%] border-3 px-4 py-3 font-pixel text-[0.7rem] leading-relaxed",
           isUser
-            ? "bg-blue-600 text-white rounded-br-sm"
-            : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-600"
+            ? "bg-pixel-user border-pixel-user text-white"
+            : "bg-pixel-bot border-pixel-bot text-white"
         )}
+        style={{
+          boxShadow: '4px 4px 0 #000000, inset -1px -1px 0 rgba(255,255,255,0.1)',
+          textShadow: '2px 2px 0 rgba(0,0,0,0.5)'
+        }}
       >
         {isTyping ? (
-          <span className="flex gap-1.5 items-center">
-            <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce"></span>
-            <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-            <span className="w-2 h-2 bg-gray-500 dark:bg-gray-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+          <span className="flex gap-2 items-center">
+            <span 
+              className="w-2 h-2 bg-white"
+              style={{
+                boxShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                animation: 'pixel-blink 1.2s infinite ease-in-out'
+              }}
+            ></span>
+            <span 
+              className="w-2 h-2 bg-white"
+              style={{
+                boxShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                animation: 'pixel-blink 1.2s infinite ease-in-out 0.2s'
+              }}
+            ></span>
+            <span 
+              className="w-2 h-2 bg-white"
+              style={{
+                boxShadow: '2px 2px 0 rgba(0,0,0,0.5)',
+                animation: 'pixel-blink 1.2s infinite ease-in-out 0.4s'
+              }}
+            ></span>
           </span>
         ) : (
           <p className="whitespace-pre-line">{text}</p>
         )}
         {!isTyping && (
-          <p className="mt-2 text-xs opacity-70 font-medium">
-            {sender === "user" ? "You" : "Bot"} •{" "}
+          <p className="mt-2 text-[0.55rem] uppercase tracking-wider text-white/70">
+            {sender === "user" ? "YOU" : "BOT"} •{" "}
             {new Date(timestamp).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
