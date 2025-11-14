@@ -13,10 +13,9 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT ?? 8787;
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL =
-  process.env.OPENROUTER_MODEL ?? "z-ai/glm-4.5-air:free";
-
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+  const MODEL = process.env.OPENROUTER_MODEL;
+  
 // In-memory conversation history (in production, use a database)
 const conversations = new Map();
 
