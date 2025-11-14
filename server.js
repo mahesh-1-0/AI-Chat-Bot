@@ -1,6 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
+import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import { randomUUID } from "crypto";
@@ -12,11 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+
+// Read env vars with safe defaults (do NOT log secrets)
 const PORT = process.env.PORT ?? 8787;
-  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-  const MODEL = process.env.OPENROUTER_MODEL;
-  
-// In-memory conversation history (in production, use a database)
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "z-ai/glm-4.5-air:free";
+
+// In-memory conversation history (for demo; use a DB in production)
 const conversations = new Map();
 
 app.use(cors());
@@ -39,7 +39,7 @@ if (existsSync(reactBuildPath)) {
   });
 }
 
-// Get or create conversation history for a session
+// Helpers for conversation history
 function getConversationHistory(sessionId) {
   if (!conversations.has(sessionId)) {
     conversations.set(sessionId, []);
@@ -47,64 +47,57 @@ function getConversationHistory(sessionId) {
   return conversations.get(sessionId);
 }
 
-// Add message to conversation history
 function addToHistory(sessionId, role, content) {
   const history = getConversationHistory(sessionId);
   history.push({ role, content });
-  // Keep last 20 messages to avoid token limits
-  if (history.length > 20) {
-    history.shift();
-  }
+  if (history.length > 20) history.shift(); // keep history small
 }
 
+// Fetch completion from OpenRouter
 async function fetchCompletion(messages) {
   if (!OPENROUTER_API_KEY) {
-    throw new Error(
-      "OPENROUTER_API_KEY is missing. Create a .env file with your API key."
-    );
+    throw new Error("OPENROUTER_API_KEY is missing. Configure it in your environment.");
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const payload = {
+    model: OPENROUTER_MODEL,
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a helpful, friendly, and concise AI assistant. Provide clear and useful responses.",
+      },
+      ...messages,
+    ],
+  };
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      // optional additional headers:
       "HTTP-Referer": `http://localhost:${PORT}`,
       "X-Title": "Chatbot App",
     },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful, friendly, and concise AI assistant. Provide clear and useful responses.",
-        },
-        ...messages,
-      ],
-    }),
+    body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `OpenRouter error ${response.status}: ${errorText.slice(0, 200)}`
-    );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`OpenRouter error ${res.status}: ${text.slice(0, 300)}`);
   }
 
-  const data = await response.json();
+  const data = await res.json();
   const reply = data?.choices?.[0]?.message?.content?.trim();
-  if (!reply) {
-    throw new Error("OpenRouter returned an empty reply.");
-  }
+  if (!reply) throw new Error("OpenRouter returned an empty reply.");
   return reply;
 }
 
+// Chat endpoint
 app.post("/api/chat", async (req, res) => {
   const { message = "", sessionId: providedSessionId } = req.body ?? {};
-  const sanitized = message.trim();
-
-  // Generate or use provided session ID
+  const sanitized = String(message).trim();
   const sessionId = providedSessionId ?? randomUUID();
 
   try {
@@ -115,42 +108,35 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
-    // Get conversation history for this session
-    const history = getConversationHistory(sessionId);
-
-    // Add user message to history
+    // add user message
     addToHistory(sessionId, "user", sanitized);
 
-    // Fetch completion with full conversation context
+    // fetch reply using conversation history
+    const history = getConversationHistory(sessionId);
     const reply = await fetchCompletion(history);
 
-    // Add assistant reply to history
+    // add assistant reply to history and respond
     addToHistory(sessionId, "assistant", reply);
-
-    res.json({
-      reply,
-      sessionId,
-    });
-  } catch (error) {
-    console.error("Chat error:", error);
+    res.json({ reply, sessionId });
+  } catch (err) {
+    console.error("Chat error:", err?.message ?? err);
     res.status(502).json({
       reply:
         "I'm having trouble connecting to the AI service right now. Please check your API key and try again.",
       sessionId,
-      error: error.message,
+      error: err?.message ?? String(err),
     });
   }
 });
 
-// Clear conversation history endpoint
+// Clear conversation history
 app.post("/api/clear", (req, res) => {
   const { sessionId } = req.body ?? {};
-  if (sessionId && conversations.has(sessionId)) {
-    conversations.delete(sessionId);
-  }
+  if (sessionId && conversations.has(sessionId)) conversations.delete(sessionId);
   res.json({ success: true });
 });
 
+// Health endpoint
 app.get("/health", (_req, res) => {
   res.json({
     ok: true,
@@ -160,9 +146,11 @@ app.get("/health", (_req, res) => {
   });
 });
 
+// Start server
 app.listen(PORT, () => {
+  // Render/host platforms set process.env.PORT. Bind message is informational.
   console.log(`\n🚀 Chatbot server running at http://localhost:${PORT}`);
   console.log(`📝 Model: ${OPENROUTER_MODEL}`);
   console.log(`🔑 API Key: ${OPENROUTER_API_KEY ? "✅ Configured" : "❌ Missing"}`);
-  console.log(`\n💡 Open http://localhost:${PORT} in your browser to start chatting!\n`);
+  console.log("\n💡 Open the URL above to start chatting (or call /api/chat).\n");
 });
